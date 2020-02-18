@@ -88,10 +88,8 @@ int main(){
   vector<Token> equation;
 
   //Input is newline-terminated
-  for (Token t = {0, 0}; ; equation.push_back(t)){
+  for (Token t = {0, 0}; t.get_kind() != '\n' ; equation.push_back(t)){
     t = get_token();
-    if (t.get_kind() == '\n')
-      break;
   }
  
   return 0;
