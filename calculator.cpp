@@ -44,37 +44,39 @@ int next_paren(vector<Token> tokenstream, int left_paren){
 }
 
 double eval_tokens(vector<Token> tokenstream, int start, int end){
-  if (tokenstream.size() == 1)
-    return tokenstream[0].get_value();
+  if (end - start == 1)
+    return tokenstream[start].get_value();
 
   else if (tokenstream[0].get_kind() == '('){
      if (last(tokenstream).get_kind() == ')') 
       return eval_tokens(tokenstream, 1, tokenstream.size() - 1);
      else {
-       int split = next_paren(tokenstream,0) + 1;
-       double left = eval_tokens(tokenstream, 1, split);
+       int split = next_paren(tokenstream,start) + 1;
+       double left = eval_tokens(tokenstream, start + 1, split);
        char op = tokenstream[split].get_kind();
-       double right = eval_tokens(tokenstream, split, tokenstream.size());
+       double right = eval_tokens(tokenstream, split + 1, end);
        return binary_eval(left, op, right);
      } 
   } 
   
   else {
-      int index = 0; 
-      while (tokenstream[index].get_kind() == 0) index++;
+      int index = start + 1; 
+  
       Token op = tokenstream[index];
 
-      for (int i = index; i < tokenstream.size(); i++){
+      for (int i = index; i < end; i++){
+           
         Token curr = tokenstream[i];
         //decide new split point
-        if (curr.get_kind() != 0 && curr.precedence() <= op.precedence()){
+        if (curr.get_kind() != 0 && (curr.precedence() <= op.precedence())){
           index = i; 
           op = tokenstream[index];
           break; 
         }
       }
-      double left = eval_tokens(tokenstream, 0, index);
-      double right = eval_tokens(tokenstream, 0, index);
+
+      double right = eval_tokens(tokenstream, index + 1, end);
+      double left = eval_tokens(tokenstream, start, index);
       return binary_eval(left, op.get_kind(), right);
   }
 }
@@ -87,10 +89,13 @@ int main(){
   cout << "Enter equation\n";
   vector<Token> equation;
 
-  //Input is newline-terminated
-  for (Token t = {0, 0}; t.get_kind() != '\n' ; equation.push_back(t)){
+  for (Token t = {0, 0}; true ; equation.push_back(t)){
     t = get_token();
-  }
+    if (t.get_kind() == '\n') break;
+  } 
+  
+  cout << "size:" << equation.size() << '\n';
+  cout << "answer:" << eval_tokens(equation);
  
   return 0;
 }
