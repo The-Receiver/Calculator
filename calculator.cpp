@@ -47,9 +47,9 @@ double eval_tokens(vector<Token> tokenstream, int start, int end){
   if (end - start == 1)
     return tokenstream[start].get_value();
 
-  else if (tokenstream[0].get_kind() == '('){
-     if (last(tokenstream).get_kind() == ')') 
-      return eval_tokens(tokenstream, 1, tokenstream.size() - 1);
+  else if (tokenstream[start].get_kind() == '('){
+     if (tokenstream[end - 1].get_kind() == ')') 
+      return eval_tokens(tokenstream, start + 1, end - 1);
      else {
        int split = next_paren(tokenstream,start) + 1;
        double left = eval_tokens(tokenstream, start + 1, split);
