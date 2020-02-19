@@ -1,7 +1,7 @@
 #include<iostream>
-#include<map>
 #include<vector>
 #include "error.h"
+#include "ioplusplus.h"
 #include "token.h"
 
 //Unary minus not supported
@@ -23,15 +23,13 @@ double binary_eval (double l, char op, double r){
   }
 }
 
-//Assumes we are at head parenthesis
+//Index of paired paren. Assumes we are at 'head' of parens
 int next_paren(vector<Token> tokenstream, int left_paren){
   int remaining_parens = 1;
-
   char curr;
 
   for (int i = left_paren + 1; i < tokenstream.size(); i++){
     curr = tokenstream[i].get_kind();
-    cout << remaining_parens;
     if (curr == '(')
       remaining_parens++;
     else if (curr == ')')
@@ -47,31 +45,38 @@ double eval_tokens(vector<Token> tokenstream, int start, int end){
   if (end - start == 1)
     return tokenstream[start].get_value();
 
-  else if (tokenstream[start].get_kind() == '('){
-     if (tokenstream[end - 1].get_kind() == ')') 
+  else if (tokenstream[start].get_kind() == '(' && 
+           tokenstream[end - 1].get_kind() == ')'){
       return eval_tokens(tokenstream, start + 1, end - 1);
-     else {
-       int split = next_paren(tokenstream,start) + 1;
-       double left = eval_tokens(tokenstream, start + 1, split);
-       char op = tokenstream[split].get_kind();
-       double right = eval_tokens(tokenstream, split + 1, end);
-       return binary_eval(left, op, right);
-     } 
   } 
   
   else {
-      int index = start + 1; 
-  
-      Token op = tokenstream[index];
-
+      int index = start; 
+      int iter = start;
+      Token op = {0,0};
+ 
       for (int i = index; i < end; i++){
-           
+          Token curr = tokenstream[i];
+          if ((curr.precedence() < op.precedence())){
+              iter = i;
+              op = curr;
+              break;
+          }
+      }
+
+      for (int i = iter; i < end; i++){      
         Token curr = tokenstream[i];
         //decide new split point
-        if (curr.get_kind() != 0 && (curr.precedence() <= op.precedence())){
+        if (curr.get_kind() != 0){
+
+        //jump over parens
+        if (curr.get_kind() == '('){
+          i = next_paren(tokenstream, i);
+        }
+        if (curr.precedence() <= op.precedence()){
           index = i; 
           op = tokenstream[index];
-          break; 
+        }
         }
       }
 
@@ -89,17 +94,14 @@ int main(){
   cout << "Enter equation\n";
   vector<Token> equation;
 
+//can this be refactored to produce the same behavior?
   for (Token t = {0, 0}; true ; equation.push_back(t)){
     t = get_token();
     if (t.get_kind() == '\n') break;
   } 
   
-  cout << "size:" << equation.size() << '\n';
-  cout << "answer:" << eval_tokens(equation);
- 
+  
+  cout << "Answer is:" << eval_tokens(equation) << '\n';
+
   return 0;
 }
-
-
-
-
