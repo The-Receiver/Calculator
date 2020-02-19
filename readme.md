@@ -15,3 +15,4 @@ segment.
 Right now it works with operators +, -, * and /, with powers and roots and unary minuses coming soon.
 
 ## input
+Input is terminated by the newline token (a token taking in the value '\n')
