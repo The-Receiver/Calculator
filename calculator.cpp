@@ -64,12 +64,12 @@ bool is_token(Token t){
 
 bool is_unary(vector<Token> tokenstream, int i, int start, int end){
   Token token = tokenstream[i];
-  if (token.is_op()){
-  if (i == start)
-      return true;
-  else if (i == end - 1)
-      return true;
-  else if (i > start && tokenstream[i - 1].is_op())
+  if (token.get_kind() == '-'){
+    if (i == start)
+        return true;
+    else if (i == end - 1)
+        return true;
+    else if (i > start && tokenstream[i - 1].is_op())
           return true;
   }
   else 
@@ -77,6 +77,7 @@ bool is_unary(vector<Token> tokenstream, int i, int start, int end){
 }
 
 double eval_tokens(vector<Token> tokenstream, int start, int end){
+ 
   if (end - start == 1)
     return tokenstream[start].get_value();
   
@@ -87,43 +88,41 @@ double eval_tokens(vector<Token> tokenstream, int start, int end){
   
   else {
       int index = start; 
-      int iter = start;
       Token op = {0,0};
 
       int precedence = MAX_PRECEDENCE;
+      int curr_precedence;
  
       for (int i = index; i < end; i++){
           Token curr = tokenstream[i];
-          if (curr.precedence() < precedence){
-              if (is_unary(tokenstream, i, start, end)){
-                cout << curr.get_kind() << '\n';
-                precedence = UNARY_PRECEDENCE;
-              } else {
-                precedence = curr.precedence();
-              }
-              iter = i;
-              op = curr; 
-              break;
+           if (is_unary(tokenstream, i, start, end))
+                curr_precedence = UNARY_PRECEDENCE;
+           else
+              curr_precedence = curr.precedence();
+           if (curr_precedence <= precedence){
+                precedence = curr_precedence;
+                index = i;
+                op = curr; 
           }
       }
 
-      for (int i = iter; i < end; i++){      
+      for (int i = index; i < end; i++){      
         Token curr = tokenstream[i];
-        int curr_precedence = curr.precedence();
-        //decide new split point
-        if (curr.is_op()){
+
         //jump over parens
         if (curr.get_kind() == '(')
           i = next_paren(tokenstream, i);
-        else if (is_unary(tokenstream, i, start, end))
+        if (curr.is_op()){
+        
+        if (is_unary(tokenstream, i, start, end))
           curr_precedence = UNARY_PRECEDENCE;
+        else 
+          curr_precedence = curr.precedence();
 
         // I make the left side as small as possible
         // Because left-side unary operators (minus)
         // tend to bind stronger than right-side
         // unary operators (factorial)
-        cout << "current operator: " << curr.get_kind() << " of precedence " << curr_precedence << endl;
-        cout << "Operator: " << op.get_kind() << "of precedence" << precedence << '\n';
         if (curr_precedence < precedence){
           index = i; 
           op = tokenstream[index];
@@ -144,15 +143,15 @@ double eval_tokens(vector<Token> tokenstream, int start, int end){
     
       double right = eval_tokens(tokenstream, index + 1, end);
       double left = eval_tokens(tokenstream, start, index);
-      cout << "Binary operator" << op.get_kind() << '\n';
       return binary_eval(left, op.get_kind(), right);
+      
+
   }
 }
 
 double eval_tokens(vector<Token> tokenstream){
   return eval_tokens(tokenstream, 0, tokenstream.size());
 }
-
 
 void debug_unary_operators(vector<Token> tokenstream){
   for (int i = 0; i < tokenstream.size(); i++){
@@ -164,6 +163,7 @@ void debug_unary_operators(vector<Token> tokenstream){
 
 int main(){
   
+  while (true){
   cout << "Enter equation\n";
   vector<Token> equation;
 
@@ -172,11 +172,10 @@ int main(){
     t = get_token();
     if (t.get_kind() == '\n') break;
   } 
-  
-  cout << eval_tokens(equation) << '\n';
 
+  cout << eval_tokens(equation);
+  }
   return 0;
-  
 }
 
 
