@@ -99,10 +99,11 @@ double eval_tokens(vector<Token> tokenstream, int start, int end){
                 curr_precedence = UNARY_PRECEDENCE;
            else
               curr_precedence = curr.precedence();
-           if (curr_precedence <= precedence){
+           if (curr_precedence < precedence){
                 precedence = curr_precedence;
                 index = i;
                 op = curr; 
+                break;
           }
       }
 
@@ -173,7 +174,7 @@ int main(){
     if (t.get_kind() == '\n') break;
   } 
 
-  cout << eval_tokens(equation);
+  cout << eval_tokens(equation) << '\n';
   }
   return 0;
 }
