@@ -1,6 +1,9 @@
 #include<iostream>
 #include<map>
-#define last(X) X[X.size() - 1]
+
+#define MAX_PRECEDENCE 5
+#define UNARY_PRECEDENCE 3
+
 namespace epric {
 
 class Token {
@@ -20,9 +23,13 @@ class Token {
   }
 
   // pass '0' for ints;
-  Token(int kind, double arg_value){
+  Token(int arg_kind, double arg_value){
     value = arg_value;
     kind = 0;
+  }
+
+  bool is_op(){
+    return kind != 0 && kind != '(' && kind != ')';
   }
 
   double get_value(){
@@ -42,17 +49,17 @@ class Token {
         return 2;
         break;
       case '^': case '_':
-        return 3;
+        return 4;
         break;
-      //is a number
+      //Parens and numbers are skipped in eval_tokens()
       default:
-        error("Error: invalid operation");
+        return MAX_PRECEDENCE;
     }
   }
   
   private:
-  char kind {-1};
-  double value {0};
+  char kind;
+  double value;
 
 };
 
@@ -66,6 +73,7 @@ class Token {
     switch (ch) {
     //strip whitespace
     case '(': case ')': case '+': case '-': case '*': case '/': case '\n':
+    case '^': case '_':
         return Token(ch);     
     case '.':
     case '0': case '1': case '2': case '3': case '4':
