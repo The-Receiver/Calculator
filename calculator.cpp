@@ -5,7 +5,6 @@
 #include "token.h"
 #include <cmath>
 
-//Unary minus not supported
 using namespace epric;
 using namespace std;
 
@@ -28,8 +27,10 @@ double binary_eval (double l, char op, double r){
 
 double unary_eval(char op, double operand){
   switch(op){
-    case '-':
+    case '-': 
       return -operand;
+    case '+':
+      return +operand;
     default:
       cout << op << " called from unary_eval()\n";
       cout << " with operand " << operand << "\n";
@@ -55,16 +56,13 @@ int next_paren(vector<Token> tokenstream, int left_paren){
   return -1;
 }
 
-bool is_token(Token t){
-  return (t.get_kind() != 0);
-}
 
 //Do not call on boundaries
 
 
 bool is_unary(vector<Token> tokenstream, int i, int start, int end){
   Token token = tokenstream[i];
-  if (token.get_kind() == '-'){
+  if (token.get_kind() == '-' || token.get_kind() == '+'){
     if (i == start)
         return true;
     else if (i == end - 1)
