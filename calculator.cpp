@@ -113,6 +113,7 @@ double eval_tokens(vector<Token> tokenstream, int start, int end){
         //jump over parens
         if (curr.get_kind() == '(')
           i = next_paren(tokenstream, i);
+          
         if (curr.is_op()){
         
         if (is_unary(tokenstream, i, start, end))
@@ -124,7 +125,7 @@ double eval_tokens(vector<Token> tokenstream, int start, int end){
         // Because left-side unary operators (minus)
         // tend to bind stronger than right-side
         // unary operators (factorial)
-        if (curr_precedence < precedence){
+        if (curr_precedence <= precedence){
           index = i; 
           op = tokenstream[index];
           precedence = curr_precedence;
