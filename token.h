@@ -28,6 +28,11 @@ class Token {
     kind = 0;
   }
 
+
+  bool is_token(Token t){
+  return (t.get_kind() != 0);
+  }
+
   bool is_op(){
     return kind != 0 && kind != '(' && kind != ')';
   }
